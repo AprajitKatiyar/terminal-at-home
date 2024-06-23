@@ -1,5 +1,7 @@
+import XTerminal from "./components/Terminal";
+
 function App() {
-  return <div></div>;
+  return <XTerminal />;
 }
 
 export default App;
