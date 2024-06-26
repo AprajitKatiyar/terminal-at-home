@@ -30,10 +30,4 @@ io.on("connection", (socket) => {
   pty.onData((data: string) => {
     socket.emit("output", data);
   });
-  socket.on("message", (message: any) => {
-    // if (message.type === "command") {
-    pty.write(message);
-    //   socket.emit("command-receive", message.data);
-    // }
-  });
 });

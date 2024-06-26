@@ -20,7 +20,6 @@ const XTerminal: React.FC = () => {
     term.write("Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ");
     term.onKey((e) => {
       socket.emit("message", e.key);
-      console.log(e.key);
     });
   }, [terminalRef]);
   useEffect(() => {
