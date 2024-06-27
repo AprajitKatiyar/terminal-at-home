@@ -2,7 +2,8 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { IoManager } from "./managers/IoManager";
-import { spawn } from "node-pty";
+import { TerminalManager } from "./managers/TerminalManager";
+import { Socket } from "socket.io";
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -20,14 +21,26 @@ httpServer.listen(3000, () => {
 export default httpServer;
 
 const io = IoManager.getIo();
+const terminalManager = new TerminalManager();
 
 io.on("connection", (socket) => {
   console.log("New Connection");
-  const pty = spawn("powershell.exe", [], {
-    name: "xterm-color",
-    env: process.env,
-  });
-  pty.onData((data: string) => {
-    socket.emit("output", data);
-  });
+  initHandlers(socket);
 });
+function initHandlers(socket: Socket) {
+  socket.on("disconnect", () => {
+    console.log("User Disconnected!");
+  });
+
+  socket.on("requestTerminal", async () => {
+    terminalManager.createPty((data) => {
+      socket.emit("terminal", {
+        data: Buffer.from(data, "utf-8"),
+      });
+    });
+  });
+
+  socket.on("terminalData", async ({ data }: { data: string }) => {
+    terminalManager.write(data);
+  });
+}
